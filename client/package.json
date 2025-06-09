@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "fix-permissions": "chmod +x ./node_modules/.bin/vite",
-    "build": "npm run fix-permissions && vite build",
     "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
