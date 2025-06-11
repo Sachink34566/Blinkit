@@ -16,36 +16,44 @@ import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
 const app = express()
-
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    credentials : true,
+    origin : process.env.FRONTEND_URL
 }))
-app.options('*', cors())
-
 app.use(express.json())
 app.use(cookieParser())
-app.use(morgan('dev'))
+app.use(morgan('dev')) // ✅ recommended for development
 app.use(helmet({
-    crossOriginResourcePolicy: false
+    crossOriginResourcePolicy : false
 }))
 
-app.get("/", (req, res) => {
-    res.json({ message: "Server is running" })
+const PORT =  8080 || process.env.PORT 
+
+app.get("/",(request,response)=>{
+    ///server to client
+    response.json({
+        message : "Server is running " + PORT
+    })
 })
 
-app.use('/api/user', userRouter)
-app.use('/api/category', categoryRouter)
-app.use('/api/file', uploadRouter)
-app.use('/api/subcategory', subCategoryRouter)
-app.use('/api/product', productRouter)
-app.use('/api/cart', cartRouter)
-app.use('/api/address', addressRouter)
-app.use('/api/order', orderRouter)
+app.use('/api/user',userRouter)
+app.use("/api/category",categoryRouter)
+app.use("/api/file",uploadRouter)
+app.use("/api/subcategory",subCategoryRouter)
+app.use("/api/product",productRouter)
+app.use("/api/cart",cartRouter)
+app.use("/api/address",addressRouter)
+app.use('/api/order',orderRouter)
 
-// MongoDB connection only once, Vercel handles serverless instances differently
-connectDB().then(() => console.log("Connected to MongoDB"))
+connectDB()
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB", err);
+  });
 
-export default app // 👈 Required for Vercel
+
