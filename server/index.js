@@ -5,6 +5,7 @@ dotenv.config()
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import helmet from 'helmet'
+
 import connectDB from './config/connectDB.js'
 import userRouter from './route/user.route.js'
 import categoryRouter from './route/category.route.js'
@@ -16,44 +17,54 @@ import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
 const app = express()
+
+// ✅ CORS Configuration
+const allowedOrigins = process.env.FRONTEND_URLS.split(',')
+
 app.use(cors({
-    credentials : true,
-    origin : process.env.FRONTEND_URL
+  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
 }))
+
 app.use(express.json())
 app.use(cookieParser())
-app.use(morgan('dev')) // ✅ recommended for development
+app.use(morgan('dev'))
 app.use(helmet({
-    crossOriginResourcePolicy : false
+  crossOriginResourcePolicy: false
 }))
 
-const PORT =  8080 || process.env.PORT 
+const PORT = process.env.PORT || 8080
 
-app.get("/",(request,response)=>{
-    ///server to client
-    response.json({
-        message : "Server is running " + PORT
-    })
+app.get("/", (req, res) => {
+  res.json({
+    message: "Server is running on port " + PORT
+  })
 })
 
-app.use('/api/user',userRouter)
-app.use("/api/category",categoryRouter)
-app.use("/api/file",uploadRouter)
-app.use("/api/subcategory",subCategoryRouter)
-app.use("/api/product",productRouter)
-app.use("/api/cart",cartRouter)
-app.use("/api/address",addressRouter)
-app.use('/api/order',orderRouter)
+// ✅ Routes
+app.use('/api/user', userRouter)
+app.use('/api/category', categoryRouter)
+app.use('/api/file', uploadRouter)
+app.use('/api/subcategory', subCategoryRouter)
+app.use('/api/product', productRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/address', addressRouter)
+app.use('/api/order', orderRouter)
 
+// ✅ Connect DB and start server
 connectDB()
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log("Connected to MongoDB")
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+      console.log(`Server is running on port ${PORT}`)
+    })
   })
   .catch((err) => {
-    console.error("Failed to connect to MongoDB", err);
-  });
-
-
+    console.error("Failed to connect to MongoDB", err)
+  })
