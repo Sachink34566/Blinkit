@@ -19,31 +19,36 @@ dotenv.config()
 
 const app = express()
 
-// ✅ CORS Configuration
+// ✅ Use PORT before routes
+const PORT = process.env.PORT || 8080
+
+// ✅ Allowed origins from env or fallback
 const allowedOrigins = process.env.FRONTEND_URLS?.split(',') || [
   'http://localhost:90',
   'https://blinkit-2idt.vercel.app',
   'http://localhost:5173'
 ]
 
+// ✅ CORS Middleware (very important)
 app.use(cors({
-  credentials: true,
   origin: function (origin, callback) {
+    // allow REST tools like Postman (no origin)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
     }
-  }
+  },
+  credentials: true, // enable cookies/sessions
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
-// ✅ Middleware
+// ✅ Standard Middleware
 app.use(express.json())
 app.use(cookieParser())
 app.use(morgan('dev'))
-app.use(helmet({
-  crossOriginResourcePolicy: false
-}))
+app.use(helmet({ crossOriginResourcePolicy: false }))
 
 // ✅ Routes
 app.get('/', (req, res) => {
@@ -59,9 +64,7 @@ app.use('/api/cart', cartRouter)
 app.use('/api/address', addressRouter)
 app.use('/api/order', orderRouter)
 
-// ✅ Server & DB Setup
-const PORT = process.env.PORT || 8080
-
+// ✅ Start server after DB connection
 connectDB()
   .then(() => {
     console.log('✅ Connected to MongoDB')
