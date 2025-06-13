@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 8080;
 // ✅ CORS Configuration
 const allowedOrigins = process.env.FRONTEND_URLS?.split(',') || [
   'http://localhost:90',
-  'https://blinkit-1dlt.vercel.app',
+  'https://blinkit-tz1a.vercel.app',
   'http://localhost:5173'
 ];
 
