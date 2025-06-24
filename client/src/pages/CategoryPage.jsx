@@ -30,23 +30,27 @@ const CategoryPage = () => {
     //     setCategoryData(allCategory)
     // },[allCategory])
     
-    const fetchCategory = async()=>{
-        try {
-            setLoading(true)
-            const response = await Axios({
-                ...SummaryApi.getCategory
-            })
-            const { data : responseData } = response
+    const fetchCategory = async () => {
+    try {
+        setLoading(true)
+        const response = await Axios({
+            ...SummaryApi.getCategory
+        })
 
-            if(responseData.success){
-                setCategoryData(responseData.data)
-            }
-        } catch (error) {
-            
-        }finally{
-            setLoading(false)
+        const responseData = response?.data;
+
+        if (responseData?.success) {
+            setCategoryData(responseData.data)
+        } else {
+            toast.error("Failed to load categories.")
         }
+
+    } catch (error) {
+        AxiosToastError(error)
+    } finally {
+        setLoading(false)
     }
+}
 
     useEffect(()=>{
         fetchCategory()
